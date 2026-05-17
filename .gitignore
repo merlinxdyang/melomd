@@ -1,0 +1,10 @@
+/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+/node_modules/
+/dist/
+/MeloMD_macOS_2.0/
+mdEditor_backup_*.zip
+.DS_Store
+*.log

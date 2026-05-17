@@ -1,0 +1,59 @@
+{
+  "name": "melomd-desktop",
+  "version": "2.0.0",
+  "author": "merlinyang",
+  "description": "MeloMD macOS desktop app wrapper",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "test:smoke": "node scripts/smoke-render-export.mjs",
+    "test:electron": "electron scripts/electron-smoke.js",
+    "dist:mac": "electron-builder --mac",
+    "dist:mac-arm64": "electron-builder --mac --arm64",
+    "dist:mac-x64": "electron-builder --mac --x64"
+  },
+  "build": {
+    "appId": "com.melomd.desktop",
+    "productName": "MeloMD",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "icon": "assets/brand/melomd-icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "files": [
+      "index.html",
+      "vendor/**/*",
+      "vendor/export-styles.js",
+      "assets/**/*",
+      "MDFILES/**/*",
+      "electron/**/*",
+      "README.md",
+      ".gitignore"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^35.1.4",
+    "electron-builder": "^25.0.5"
+  },
+  "dependencies": {
+    "@highlightjs/cdn-assets": "^11.9.0",
+    "codemirror": "^5.65.16",
+    "docx": "^8.5.0",
+    "dompurify": "^3.1.6",
+    "fuse.js": "^7.0.0",
+    "highlight.js": "^11.9.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "jszip": "^3.10.1",
+    "katex": "^0.16.10",
+    "marked": "^11.2.0",
+    "marked-katex-extension": "^5.1.4",
+    "mermaid": "^10.9.3"
+  }
+}
