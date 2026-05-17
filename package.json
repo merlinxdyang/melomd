@@ -2,6 +2,7 @@
   "name": "melomd-desktop",
   "version": "2.0.0",
   "author": "merlinyang",
+  "license": "MIT",
   "description": "MeloMD macOS desktop app wrapper",
   "main": "electron/main.js",
   "scripts": {

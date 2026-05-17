@@ -95,4 +95,4 @@ The HTML export is self-contained, including bundled KaTeX and syntax-highlighti
 
 ## License
 
-No open-source license has been declared yet. Add a `LICENSE` file before public redistribution if you want others to reuse or modify the source under explicit terms.
+MeloMD is released under the MIT License. See [LICENSE](LICENSE).
