@@ -19,12 +19,14 @@ Developed by **X.D. Yang**. Current version: **2.0.0**.
 
 ## Download
 
-See the GitHub Releases page for macOS installers:
+See the GitHub Releases page for installers:
 
 - `MeloMD-2.0.0-arm64.dmg` for Apple Silicon Macs.
 - `MeloMD-2.0.0-x64.dmg` for Intel Macs.
+- `MeloMD-Setup-2.0.0-x64.exe` for 64-bit Windows.
+- `MeloMD-2.0.0-win-x64.zip` as a portable 64-bit Windows archive.
 
-These local builds are unsigned unless a Developer ID certificate is available during packaging. On first launch, macOS may require opening from **System Settings > Privacy & Security** or using **Open** from the Finder context menu.
+These local builds are unsigned unless platform signing certificates are available during packaging. On first launch, macOS may require opening from **System Settings > Privacy & Security** or using **Open** from the Finder context menu. Windows may show a SmartScreen warning for unsigned installers.
 
 ## Run From Source
 
@@ -62,12 +64,21 @@ Build Intel:
 npm run dist:mac-x64
 ```
 
+Build Windows x64:
+
+```bash
+npm run dist:win-x64
+```
+
 The packaged output is written to `dist/`. The prepared local release folder for version 2.0.0 is:
 
 ```text
 MeloMD_macOS_2.0/
   Apple-Silicon-arm64/MeloMD-2.0.0-arm64.dmg
   Intel-x64/MeloMD-2.0.0-x64.dmg
+MeloMD_Windows_2.0/
+  Windows-x64/MeloMD-Setup-2.0.0-x64.exe
+  Windows-x64/MeloMD-2.0.0-win-x64.zip
 ```
 
 ## Project Structure

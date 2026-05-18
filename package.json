@@ -11,7 +11,9 @@
     "test:electron": "electron scripts/electron-smoke.js",
     "dist:mac": "electron-builder --mac",
     "dist:mac-arm64": "electron-builder --mac --arm64",
-    "dist:mac-x64": "electron-builder --mac --x64"
+    "dist:mac-x64": "electron-builder --mac --x64",
+    "dist:win": "electron-builder --win",
+    "dist:win-x64": "electron-builder --win --x64"
   },
   "build": {
     "appId": "com.melomd.desktop",
@@ -27,6 +29,30 @@
       ],
       "category": "public.app-category.productivity"
     },
+    "win": {
+      "icon": "assets/brand/melomd-icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MeloMD"
+    },
     "files": [
       "index.html",
       "vendor/**/*",
@@ -35,6 +61,7 @@
       "MDFILES/**/*",
       "electron/**/*",
       "README.md",
+      "LICENSE",
       ".gitignore"
     ]
   },
