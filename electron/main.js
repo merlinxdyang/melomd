@@ -4,6 +4,8 @@ const fs = require('fs/promises');
 const { fileURLToPath } = require('url');
 
 const appRoot = path.resolve(__dirname, '..');
+const writableMarkdownPaths = new Set();
+const appIconPath = path.join(appRoot, 'assets', 'brand', 'melomd-dock-icon.png');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -12,7 +14,7 @@ function createWindow() {
     minWidth: 980,
     minHeight: 640,
     title: 'MeloMD',
-    icon: path.join(__dirname, '..', 'assets', 'brand', 'melomd-icon.png'),
+    icon: appIconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -86,6 +88,15 @@ function safeExportName(name) {
     .slice(0, 80) || 'document';
 }
 
+function ensureMarkdownExtension(filePath) {
+  const ext = path.extname(filePath || '').toLowerCase();
+  return ext === '.md' ? filePath : `${filePath}.md`;
+}
+
+function markdownNameFromPath(filePath) {
+  return path.basename(filePath || 'untitled.md').replace(/\.md$/i, '') || 'untitled';
+}
+
 function resolveAssetRef(ref) {
   const raw = String(ref || '').trim();
   if (!raw) throw new Error('Missing asset path');
@@ -129,6 +140,53 @@ ipcMain.handle('litemd:read-asset-data-url', async (event, ref) => {
   const filePath = resolveAssetRef(ref);
   const buffer = await fs.readFile(filePath);
   return `data:${mimeForAsset(filePath)};base64,${buffer.toString('base64')}`;
+});
+
+ipcMain.handle('litemd:create-markdown-file', async (event, options = {}) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) {
+    throw new Error('No active window');
+  }
+
+  const defaultName = `${safeExportName(options.title || 'untitled')}.md`;
+  const defaultPath = path.join(app.getPath('documents'), defaultName);
+  const result = await dialog.showSaveDialog(win, {
+    title: '新建 Markdown 文件',
+    defaultPath,
+    filters: [{ name: 'Markdown', extensions: ['md'] }]
+  });
+  if (result.canceled || !result.filePath) {
+    return { canceled: true };
+  }
+
+  const filePath = path.resolve(ensureMarkdownExtension(result.filePath));
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, String(options.content || ''), 'utf8');
+  writableMarkdownPaths.add(filePath);
+  return {
+    canceled: false,
+    filePath,
+    fileName: path.basename(filePath),
+    title: markdownNameFromPath(filePath)
+  };
+});
+
+ipcMain.handle('litemd:write-markdown-file', async (event, options = {}) => {
+  const rawPath = String(options.filePath || '');
+  if (!rawPath) {
+    throw new Error('Missing file path');
+  }
+  const filePath = path.resolve(ensureMarkdownExtension(rawPath));
+  if (!writableMarkdownPaths.has(filePath)) {
+    throw new Error('This Markdown file was not created in this session');
+  }
+  await fs.writeFile(filePath, String(options.content || ''), 'utf8');
+  return {
+    ok: true,
+    filePath,
+    fileName: path.basename(filePath),
+    title: markdownNameFromPath(filePath)
+  };
 });
 
 ipcMain.handle('litemd:export-pdf', async (event, options = {}) => {
@@ -207,6 +265,9 @@ ipcMain.handle('litemd:export-pdf', async (event, options = {}) => {
 });
 
 app.whenReady().then(() => {
+  if (process.platform === 'darwin' && app.dock) {
+    app.dock.setIcon(appIconPath);
+  }
   buildMenu();
   createWindow();
   app.on('activate', () => {

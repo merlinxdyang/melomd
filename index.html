@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MeloMD</title>
+  <link rel="icon" type="image/png" href="assets/brand/melomd-icon.png">
+  <link rel="apple-touch-icon" href="assets/brand/melomd-icon.png">
   <link rel="stylesheet" href="vendor/highlight/styles/github.min.css" id="hljs-light">
   <link rel="stylesheet" href="vendor/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
   <link rel="stylesheet" href="vendor/katex/dist/katex.min.css">
@@ -103,8 +105,9 @@
     /* Toolbar */
     #toolbar {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 6px 8px;
       padding: 8px 10px;
       background: var(--toolbar);
       border: 1px solid rgba(31, 41, 51, .12);
@@ -113,18 +116,52 @@
       min-height: 54px;
       flex-shrink: 0;
       backdrop-filter: blur(14px);
-      overflow-x: auto;
+      overflow-x: visible;
       overflow-y: visible;
+    }
+
+    #toolbar .toolbar-main {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+      flex: 1 1 360px;
+    }
+
+    #toolbar .toolbar-tools {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+      min-width: 0;
+      max-width: 100%;
+      flex: 2 1 380px;
+      padding: 3px 5px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .28);
+      border: 1px solid rgba(31, 41, 51, .075);
+    }
+
+    #toolbar .tool-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     #toolbar .tb-group {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 5px;
       padding: 3px;
       border-radius: 13px;
       background: rgba(255, 255, 255, .32);
       border: 1px solid rgba(31, 41, 51, .075);
+      min-width: 0;
     }
 
     #toolbar .sep {
@@ -133,6 +170,7 @@
       background: rgba(31, 41, 51, .14);
       margin: 0 2px;
       flex: 0 0 auto;
+      align-self: center;
     }
 
     .toolbar-brand {
@@ -338,7 +376,8 @@
 
     #doc-title {
       flex: 1;
-      min-width: 180px;
+      min-width: 140px;
+      max-width: 100%;
       font-size: 15px;
       font-weight: 800;
       border: 1px solid rgba(31, 41, 51, .1);
@@ -512,13 +551,14 @@
     }
 
     .doc-item {
-      padding: 10px 11px;
+      padding: 10px 42px 10px 11px;
       border-radius: 13px;
       cursor: pointer;
       margin-bottom: 7px;
       background: var(--sidebar-item);
       border: 1px solid rgba(31, 41, 51, .08);
       transition: transform .16s ease, background .16s ease, box-shadow .16s ease, border-color .16s ease;
+      position: relative;
     }
 
     .doc-item:hover {
@@ -556,20 +596,92 @@
       margin-top: 2px;
     }
 
-    .doc-item-delete {
-      float: right;
-      opacity: 0;
+    .doc-item-actions {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .58);
       color: var(--muted);
-      font-size: 14px;
-      padding: 0 2px;
+      opacity: 0;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 900;
     }
 
-    .doc-item:hover .doc-item-delete {
+    .doc-item:hover .doc-item-actions,
+    .doc-item-actions:focus-visible,
+    .doc-item-actions.open {
       opacity: 1;
     }
 
-    .doc-item-delete:hover {
-      color: #e53e3e !important;
+    .doc-item-actions:hover,
+    .doc-item-actions.open {
+      color: var(--accent);
+      border-color: rgba(31, 41, 51, .12);
+      background: var(--panel-raised);
+    }
+
+    #doc-context-menu {
+      display: none;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 10001;
+      min-width: 168px;
+      padding: 7px;
+      border: 1px solid rgba(31, 41, 51, .12);
+      border-radius: 12px;
+      background: var(--panel-raised);
+      box-shadow: 0 18px 44px var(--shadow-strong);
+    }
+
+    #doc-context-menu.open {
+      display: block;
+    }
+
+    #doc-context-menu button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font: 700 13px/1.2 inherit;
+      text-align: left;
+    }
+
+    #doc-context-menu button:hover {
+      background: var(--accent-soft);
+    }
+
+    #doc-context-menu button:disabled {
+      opacity: .42;
+      cursor: default;
+    }
+
+    #doc-context-menu button:disabled:hover {
+      background: transparent;
+    }
+
+    #doc-context-menu .danger {
+      color: #b42318;
+    }
+
+    #doc-context-menu .menu-sep {
+      height: 1px;
+      margin: 5px 3px;
+      background: var(--border);
     }
 
     /* Editor + Preview */
@@ -639,10 +751,61 @@
       display: none;
     }
 
+    #wysiwyg-pane {
+      display: none;
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      background: var(--preview-bg);
+      padding: 30px 38px;
+      border: 1px solid rgba(31, 41, 51, .12);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 28px var(--shadow);
+    }
+
+    body.wysiwyg-mode #editor-pane,
+    body.wysiwyg-mode #divider,
+    body.wysiwyg-mode #preview-pane {
+      display: none !important;
+    }
+
+    body.wysiwyg-mode #wysiwyg-pane {
+      display: block;
+    }
+
+    #wysiwyg-editor {
+      width: 100%;
+      max-width: none;
+      min-height: calc(100vh - 150px);
+      margin: 0;
+      padding: 34px 42px;
+      border: 1px solid rgba(31, 41, 51, .08);
+      border-radius: 16px;
+      background: var(--panel-raised);
+      color: var(--text);
+      box-shadow: 0 14px 34px rgba(31, 41, 51, .11);
+      line-height: 1.8;
+      font-size: 15.5px;
+      outline: none;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    #wysiwyg-editor:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft), 0 14px 34px rgba(31, 41, 51, .11);
+    }
+
+    #wysiwyg-editor:empty::before {
+      content: attr(data-placeholder);
+      color: var(--muted);
+    }
+
     /* Markdown preview styles */
     #preview {
-      max-width: 760px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: none;
+      margin: 0;
       line-height: 1.8;
       font-size: 15.5px;
       color: var(--text);
@@ -961,6 +1124,97 @@
       margin-left: .35em;
     }
 
+    #wysiwyg-editor h1,
+    #wysiwyg-editor h2,
+    #wysiwyg-editor h3,
+    #wysiwyg-editor h4 {
+      margin: 1.4em 0 .6em;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    #wysiwyg-editor h1 {
+      font-size: 2em;
+      border-bottom: 3px solid var(--warm-soft);
+      padding-bottom: .3em;
+    }
+
+    #wysiwyg-editor h2 {
+      font-size: 1.4em;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: .2em;
+    }
+
+    #wysiwyg-editor h3 {
+      font-size: 1.15em;
+      color: var(--accent);
+    }
+
+    #wysiwyg-editor p {
+      margin: .8em 0;
+    }
+
+    #wysiwyg-editor ul,
+    #wysiwyg-editor ol {
+      margin: .8em 0;
+      padding-left: 2em;
+    }
+
+    #wysiwyg-editor li {
+      margin: .3em 0;
+    }
+
+    #wysiwyg-editor blockquote {
+      border-left: 5px solid var(--warm);
+      margin: 1em 0;
+      padding: .7em 1em;
+      background: var(--warm-soft);
+      color: var(--text);
+      border-radius: 0 12px 12px 0;
+    }
+
+    #wysiwyg-editor code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: .875em;
+      background: var(--sun-soft);
+      padding: .15em .4em;
+      border-radius: 6px;
+    }
+
+    #wysiwyg-editor pre {
+      background: #f3f4f6;
+      color: #27313d;
+      border: 1px solid #d8dee4;
+      border-radius: 14px;
+      padding: 1em 1.2em;
+      overflow-x: auto;
+      margin: 1em 0;
+    }
+
+    #wysiwyg-editor table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+
+    #wysiwyg-editor th,
+    #wysiwyg-editor td {
+      border: 1px solid var(--border);
+      padding: .58em .85em;
+    }
+
+    #wysiwyg-editor th {
+      background: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    #wysiwyg-editor img,
+    #wysiwyg-editor svg {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
     /* Status bar */
     #statusbar {
       display: flex;
@@ -1113,6 +1367,36 @@
 
       #preview {
         padding: 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      #toolbar {
+        align-items: stretch;
+        overflow: visible;
+      }
+
+      #toolbar .toolbar-main,
+      #toolbar .toolbar-tools {
+        flex: 1 1 100%;
+        width: 100%;
+      }
+
+      #toolbar .tool-row {
+        width: 100%;
+      }
+
+      #toolbar .sep {
+        display: none;
+      }
+
+      #doc-title {
+        flex: 1 1 100%;
+      }
+
+      #toolbar .view-actions,
+      #toolbar > .tb-group {
+        flex: 1 1 auto;
       }
     }
 
@@ -1428,7 +1712,8 @@
   <div id="app">
     <!-- Toolbar -->
     <div id="toolbar">
-      <div class="tb-group brand-actions">
+      <div class="toolbar-main">
+        <div class="tb-group brand-actions">
 	        <button class="tb-btn utility-action icon-button" id="btn-sidebar" title="文档列表 (Ctrl+Shift+B)"><img class="toolbar-icon" src="assets/toolbar-icons/sidebar.png" alt=""></button>
         <button type="button" class="toolbar-brand" id="brand-info-button" aria-label="MeloMD 软件信息" aria-describedby="brand-info-popover" aria-expanded="false">
           <img class="brand-logo brand-logo-wide" src="assets/brand/melomd-logo.png" alt="MeloMD">
@@ -1442,23 +1727,25 @@
           <p class="brand-popover-desc">A fresh Markdown editor for quick writing and converting.</p>
           <dl class="brand-popover-meta">
             <dt>Developed by</dt><dd>X.D. Yang</dd>
-            <dt>Version</dt><dd>2.0</dd>
+            <dt>Version</dt><dd>3.0</dd>
             <dt>Focus</dt><dd>Local-first drafting with live preview</dd>
             <dt>Supports</dt><dd>LaTeX, Mermaid, images, tables and footnotes</dd>
             <dt>Exports</dt><dd>Markdown, HTML, PDF and Word</dd>
           </dl>
         </span>
-      </div>
-      <div class="sep"></div>
-      <div class="tb-group file-actions">
+        </div>
+        <div class="sep"></div>
+        <div class="tb-group file-actions">
         <button class="tb-btn insert-action icon-button" id="btn-new" title="新建 (Ctrl+N)"><img class="toolbar-icon" src="assets/toolbar-icons/new-document.png" alt=""></button>
         <button class="tb-btn utility-action icon-button" id="btn-open-file" title="打开文件 (Ctrl+O)"><img class="toolbar-icon" src="assets/toolbar-icons/open-file.png" alt=""></button>
         <button class="tb-btn utility-action icon-button" id="btn-set-folder" title="设置工作区文件夹"><img class="toolbar-icon" src="assets/toolbar-icons/workspace-folder.png" alt=""></button>
+        </div>
+        <div class="sep"></div>
+	      <input type="text" id="doc-title" placeholder="文档标题…" autocomplete="off">
       </div>
       <div class="sep"></div>
-	      <input type="text" id="doc-title" placeholder="文档标题…" autocomplete="off">
-	      <div class="sep"></div>
-	      <div class="tb-group edit-actions">
+      <div class="toolbar-tools" aria-label="编辑工具">
+	      <div class="tool-row edit-actions" aria-label="绿色编辑工具">
 	        <button class="tb-btn editor-action icon-button" id="btn-undo" title="撤销 (Ctrl+Z)" onclick="historyUndo()"><img class="toolbar-icon" src="assets/toolbar-icons/undo.png" alt=""></button>
 	        <button class="tb-btn editor-action icon-button" id="btn-redo" title="重做 (Ctrl+Y)" onclick="historyRedo()"><img class="toolbar-icon" src="assets/toolbar-icons/redo.png" alt=""></button>
 	        <button class="tb-btn editor-action icon-button" id="btn-cut" title="剪切 (Ctrl+X)" onclick="editorCut()"><img class="toolbar-icon" src="assets/toolbar-icons/cut.png" alt=""></button>
@@ -1468,8 +1755,7 @@
 	        <button class="tb-btn editor-action icon-button" id="btn-find" title="查找 (Ctrl+F)" onclick="openFindBar(false)"><img class="toolbar-icon" src="assets/toolbar-icons/find.png" alt=""></button>
 	        <button class="tb-btn editor-action icon-button" id="btn-replace" title="查找替换 (Ctrl+H)" onclick="openFindBar(true)"><img class="toolbar-icon" src="assets/toolbar-icons/replace.png" alt=""></button>
 	      </div>
-	      <div class="sep"></div>
-	      <div class="tb-group format-actions">
+	      <div class="tool-row format-actions" aria-label="黄色和红色格式工具">
 	        <button class="tb-btn format-action icon-button" id="btn-bold" title="粗体 (Ctrl+B)"><img class="toolbar-icon" src="assets/toolbar-icons/bold.png" alt=""></button>
 	        <button class="tb-btn format-action icon-button" id="btn-italic" title="斜体 (Ctrl+I)"><img class="toolbar-icon" src="assets/toolbar-icons/italic.png" alt=""></button>
 	        <button class="tb-btn format-action icon-button" id="btn-code-inline" title="行内代码"><img class="toolbar-icon" src="assets/toolbar-icons/code.png" alt=""></button>
@@ -1480,8 +1766,10 @@
 		        <button class="tb-btn insert-action icon-button" id="btn-math" title="公式"><img class="toolbar-icon" src="assets/toolbar-icons/math.png" alt=""></button>
 		        <button class="tb-btn insert-action icon-button" id="btn-image" title="插入图片"><img class="toolbar-icon" src="assets/toolbar-icons/image.png" alt=""></button>
 		      </div>
+      </div>
 	      <div class="sep"></div>
 	      <div class="tb-group view-actions">
+        <button class="tb-btn-text" id="btn-mode" title="切换对照/所见即所得模式">对照</button>
         <button class="tb-btn-text" id="btn-preview" title="预览 (Ctrl+P)">预览</button>
         <button class="tb-btn-text" id="btn-focus" title="专注模式 (Ctrl+Shift+F)">专注</button>
       </div>
@@ -1553,6 +1841,9 @@
         <div id="preview-pane">
           <div id="preview"></div>
         </div>
+        <div id="wysiwyg-pane">
+          <div id="wysiwyg-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="开始写作。输入 Markdown 语法后会自动渲染为最终样式。"></div>
+        </div>
       </div>
     </div>
 
@@ -1568,6 +1859,7 @@
 
   <div id="toast"></div>
   <div id="slash-menu"></div>
+  <div id="doc-context-menu" role="menu" aria-label="历史记录操作"></div>
   <div id="auth-modal">
     <div id="auth-card">
       <h3>登录 MeloMD</h3>
@@ -1746,6 +2038,7 @@
     let editor = null;
     let saveTimer = null;
     let previewVisible = true;
+    let editorMode = 'split';
     let sidebarVisible = true;
     let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     let isAuthenticated = IS_LOCAL_FILE;
@@ -1753,6 +2046,9 @@
     let cloudDirty = false;
     let cloudSaveTimer = null;
     let suppressEditorChange = false;
+    let suppressWysiwygChange = false;
+    let wysiwygRenderTimer = null;
+    const docFileHandles = new Map();
 
     // ─── Slash command definitions ──────────────────────────────────────────────
     // Helper to create a code-block slash command for a language
@@ -2591,7 +2887,7 @@
 	      }
 	    }
 
-	    function updatePreview() {
+    function updatePreview() {
 	      const md = renderFootnoteMarkdown(normalizeMathMarkdown(editor.getValue()));
 	      const sourceMarkers = buildPreviewSourceMarkers(md);
 	      const rawHtml = marked.parse(md);
@@ -2599,6 +2895,7 @@
         ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } })
         : rawHtml;
       document.getElementById('preview').innerHTML = safeHtml;
+	      updateWysiwygFromMarkdown(safeHtml);
 	      assignPreviewSourceMarkers(sourceMarkers);
       // Mermaid diagrams (mermaid class added by our renderer)
       let renderPromise = Promise.resolve();
@@ -2841,16 +3138,23 @@
     }
 
     // ─── Documents CRUD ────────────────────────────────────────────────────────
-	    function createDoc() {
+	    function createDoc(options) {
+	      const opts = options || {};
 	      const doc = {
 	        id: genId(),
-	        title: '新文档',
-	        content: '',
+	        title: opts.title || '新文档',
+	        content: opts.content || '',
 	        createdAt: Date.now(),
 	        updatedAt: Date.now(),
 	        expiresAt: null,
-	        autoTitle: true
+	        autoTitle: opts.autoTitle !== undefined ? opts.autoTitle : true
 	      };
+	      if (opts.filePath) doc.filePath = opts.filePath;
+	      if (opts.fileName) doc.fileName = opts.fileName;
+	      if (opts.fileHandle) {
+	        doc.fileName = opts.fileName || opts.fileHandle.name;
+	        docFileHandles.set(doc.id, opts.fileHandle);
+	      }
       docs.unshift(doc);
       saveDocs(docs);
       setActive(doc.id);
@@ -2864,6 +3168,46 @@
         titleEl.select();
         titleEl.focus();
       }, 50);
+      return doc;
+    }
+
+    async function createNewMarkdownDoc() {
+      const titleFromInput = document.getElementById('doc-title').value.trim() || 'untitled';
+      const initialContent = '';
+      if (window.LiteMDDesktop && typeof window.LiteMDDesktop.createMarkdownFile === 'function') {
+        const result = await window.LiteMDDesktop.createMarkdownFile({
+          title: titleFromInput,
+          content: initialContent
+        });
+        if (!result || result.canceled) return null;
+        return createDoc({
+          title: result.title || (result.fileName || 'untitled.md').replace(/\.md$/i, ''),
+          content: initialContent,
+          filePath: result.filePath,
+          fileName: result.fileName,
+          autoTitle: false
+        });
+      }
+
+      if (window.showSaveFilePicker) {
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: ensureMdName(titleFromInput),
+          types: [{ description: 'Markdown 文件', accept: { 'text/markdown': ['.md'] } }]
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(initialContent);
+        await writable.close();
+        return createDoc({
+          title: fileHandle.name.replace(/\.md$/i, '') || 'untitled',
+          content: initialContent,
+          fileHandle,
+          fileName: fileHandle.name,
+          autoTitle: false
+        });
+      }
+
+      toast('当前环境不能选择保存路径，已创建本地历史文档');
+      return createDoc({ title: '新文档', content: initialContent, autoTitle: true });
     }
 
 	    function setActive(id) {
@@ -2885,10 +3229,12 @@
       renderDocList();
       setSaveStatus('已保存', 'saved');
       setRetentionHint(doc);
+      updatePathDisplay();
     }
 
     async function deleteDoc(id, e) {
-      e.stopPropagation();
+      if (e && e.stopPropagation) e.stopPropagation();
+      closeDocMenu();
       if (!confirm('确定删除这篇文档？')) return;
       if (!IS_LOCAL_FILE && isAuthenticated) {
         try { await deleteFromServer(id); } catch (err) { toast('删除失败：' + err.message); return; }
@@ -2930,13 +3276,118 @@
         return;
       }
       list.innerHTML = items.map(doc => `
-    <div class="doc-item${doc.id === activeId ? ' active' : ''}" onclick="setActive('${doc.id}')">
-      <span class="doc-item-delete" onclick="deleteDoc('${doc.id}',event)">🗑</span>
+    <div class="doc-item${doc.id === activeId ? ' active' : ''}" onclick="setActive('${doc.id}')" oncontextmenu="openDocMenu(event,'${doc.id}')">
+      <button type="button" class="doc-item-actions" title="文档操作" aria-label="文档操作" onclick="openDocMenu(event,'${doc.id}')">⋯</button>
       <div class="doc-item-title">${escHtml(doc.title)}</div>
       <div class="doc-item-meta">${fmtDate(doc.updatedAt)}</div>
       <div class="doc-item-snippet">${escHtml((doc.content || '').slice(0, 60))}</div>
     </div>
   `).join('');
+    }
+
+    function closeDocMenu() {
+      const menu = document.getElementById('doc-context-menu');
+      if (menu) menu.classList.remove('open');
+      document.querySelectorAll('.doc-item-actions.open').forEach(btn => btn.classList.remove('open'));
+    }
+
+    function positionDocMenu(menu, x, y) {
+      menu.style.visibility = 'hidden';
+      menu.classList.add('open');
+      const rect = menu.getBoundingClientRect();
+      const left = Math.max(10, Math.min(x, window.innerWidth - rect.width - 10));
+      const top = Math.max(10, Math.min(y, window.innerHeight - rect.height - 10));
+      menu.style.left = `${Math.round(left)}px`;
+      menu.style.top = `${Math.round(top)}px`;
+      menu.style.visibility = '';
+    }
+
+    function openDocMenu(event, id) {
+      event.preventDefault();
+      event.stopPropagation();
+      const doc = docs.find(d => d.id === id);
+      if (!doc) return;
+      closeDocMenu();
+      const menu = document.getElementById('doc-context-menu');
+      const pathText = displayPathForDoc(doc);
+      menu.innerHTML = `
+        <button type="button" onclick="saveHistoryDoc('${id}')">保存</button>
+        <button type="button" onclick="copyHistoryDoc('${id}')">复制内容</button>
+        <button type="button" onclick="pasteIntoHistoryDoc('${id}')">粘贴到文档</button>
+        <div class="menu-sep"></div>
+        <button type="button" onclick="showHistoryDocPath('${id}')" ${pathText ? '' : 'disabled'}>查看路径</button>
+        <button type="button" onclick="copyHistoryDocPath('${id}')" ${pathText ? '' : 'disabled'}>复制路径</button>
+        <div class="menu-sep"></div>
+        <button type="button" class="danger" onclick="deleteDoc('${id}', event)">删除</button>
+      `;
+      const actionButton = event.target.closest && event.target.closest('.doc-item-actions');
+      if (actionButton) actionButton.classList.add('open');
+      positionDocMenu(menu, event.clientX, event.clientY);
+    }
+
+    async function saveHistoryDoc(id) {
+      closeDocMenu();
+      if (id === activeId) saveActive({ syncServer: false, updateStatus: false, render: false });
+      const doc = docs.find(d => d.id === id);
+      if (!doc) return;
+      try {
+        const hadPath = displayPathForDoc(doc);
+        await saveToFileSystem(id);
+        if (!hadPath && !displayPathForDoc(doc)) {
+          const selected = await chooseSaveTargetForDoc(doc);
+          if (!selected) return;
+        }
+        setSaveStatus('已保存', 'saved');
+        toast('已保存');
+      } catch (e) {
+        toast('保存失败：' + e.message);
+      }
+    }
+
+    function copyHistoryDoc(id) {
+      closeDocMenu();
+      const doc = docs.find(d => d.id === id);
+      if (!doc) return;
+      navigator.clipboard.writeText(doc.content || '')
+        .then(() => toast('已复制文档内容'))
+        .catch(() => toast('复制失败'));
+    }
+
+    function pasteIntoHistoryDoc(id) {
+      closeDocMenu();
+      const doc = docs.find(d => d.id === id);
+      if (!doc) return;
+      navigator.clipboard.readText().then(text => {
+        if (id === activeId && editorMode === 'split') {
+          editor.replaceSelection(text);
+          editor.focus();
+          return;
+        }
+        doc.content = `${doc.content || ''}${doc.content ? '\n' : ''}${text}`;
+        doc.updatedAt = Date.now();
+        saveDocs(docs);
+        if (id === activeId) setActive(id);
+        renderDocList(document.getElementById('search-box').value);
+        toast('已粘贴到文档');
+      }).catch(() => toast('剪贴板访问被拒绝'));
+    }
+
+    function showHistoryDocPath(id) {
+      closeDocMenu();
+      const pathText = displayPathForDoc(docs.find(d => d.id === id));
+      toast(pathText || '此文档尚无磁盘路径', pathText ? 4200 : 2200);
+    }
+
+    function copyHistoryDocPath(id) {
+      closeDocMenu();
+      const pathText = displayPathForDoc(docs.find(d => d.id === id));
+      if (!pathText) {
+        toast('此文档尚无磁盘路径');
+        return;
+      }
+      navigator.clipboard.writeText(pathText)
+        .then(() => toast('路径已复制'))
+        .catch(() => toast(pathText, 4200));
     }
 
     function escHtml(s) {
@@ -2945,6 +3396,128 @@
 
     function escAttr(s) {
       return escHtml(s).replace(/"/g, '&quot;');
+    }
+
+    function safeFileName(name) {
+      return String(name || 'untitled')
+        .replace(/[\\/:*?"<>|]/g, '_')
+        .replace(/\s+/g, '_')
+        .replace(/^\.+$/, 'untitled')
+        .slice(0, 80) || 'untitled';
+    }
+
+    function ensureMdName(name) {
+      const base = safeFileName(name || 'untitled');
+      return /\.md$/i.test(base) ? base : `${base}.md`;
+    }
+
+    function displayPathForDoc(doc) {
+      if (!doc) return '';
+      if (doc.filePath) return doc.filePath;
+      if (doc.fileName) return doc.fileName;
+      if (doc.fsRoot && doc.fsFolder && doc.fsFile) return `${doc.fsRoot}/${doc.fsFolder}/${doc.fsFile}`;
+      if (rootDirHandle && doc.fsFolder && doc.fsFile) return `${rootDirHandle.name}/${doc.fsFolder}/${doc.fsFile}`;
+      if (doc.fsOpened) return doc.fsOpened;
+      return '';
+    }
+
+    function plainTextWithBreaks(node) {
+      if (!node) return '';
+      if (node.nodeType === Node.TEXT_NODE) return node.nodeValue || '';
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+      const tag = node.tagName.toLowerCase();
+      if (tag === 'br') return '\n';
+      const parts = Array.from(node.childNodes).map(plainTextWithBreaks).join('');
+      if (['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'pre', 'tr'].includes(tag)) {
+        return parts + '\n';
+      }
+      return parts;
+    }
+
+    function domNodeToMarkdown(node, depth) {
+      if (!node) return '';
+      if (node.nodeType === Node.TEXT_NODE) return node.nodeValue || '';
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+      const tag = node.tagName.toLowerCase();
+      const text = () => Array.from(node.childNodes).map(child => domNodeToMarkdown(child, depth)).join('');
+      if (tag === 'br') return '\n';
+      if (tag === 'strong' || tag === 'b') return `**${text()}**`;
+      if (tag === 'em' || tag === 'i') return `*${text()}*`;
+      if (tag === 'code' && node.parentElement && node.parentElement.tagName.toLowerCase() !== 'pre') return `\`${node.textContent || ''}\``;
+      if (tag === 'pre') return `\n\`\`\`\n${node.textContent || ''}\n\`\`\`\n\n`;
+      if (tag === 'a') return `[${text() || node.href}](${node.getAttribute('href') || ''})`;
+      if (tag === 'img') return `![${node.getAttribute('alt') || 'image'}](${node.getAttribute('src') || ''})`;
+      if (/^h[1-6]$/.test(tag)) return `${'#'.repeat(Number(tag[1]))} ${text().trim()}\n\n`;
+      if (tag === 'blockquote') return text().trim().split('\n').map(line => `> ${line}`).join('\n') + '\n\n';
+      if (tag === 'ul' || tag === 'ol') {
+        const ordered = tag === 'ol';
+        return Array.from(node.children).map((li, index) => {
+          const marker = ordered ? `${index + 1}. ` : '- ';
+          return marker + domNodeToMarkdown(li, (depth || 0) + 1).trim().replace(/\n/g, '\n  ');
+        }).join('\n') + '\n\n';
+      }
+      if (tag === 'li') return text();
+      if (tag === 'table') {
+        const rows = Array.from(node.querySelectorAll('tr')).map(row => Array.from(row.children).map(cell => plainTextWithBreaks(cell).trim()));
+        if (!rows.length) return '';
+        const header = rows[0];
+        const body = rows.slice(1);
+        return `| ${header.join(' | ')} |\n| ${header.map(() => '---').join(' | ')} |\n${body.map(row => `| ${row.join(' | ')} |`).join('\n')}\n\n`;
+      }
+      if (['p', 'div'].includes(tag)) return text().trim() ? `${text().trim()}\n\n` : '\n';
+      return text();
+    }
+
+    function wysiwygHtmlToMarkdown() {
+      const surface = document.getElementById('wysiwyg-editor');
+      if (!surface) return '';
+      const hasBlockHtml = surface.querySelector('h1,h2,h3,h4,h5,h6,p,ul,ol,blockquote,pre,table,img');
+      if (!hasBlockHtml) return plainTextWithBreaks(surface).replace(/\n{3,}/g, '\n\n').trimEnd();
+      return Array.from(surface.childNodes)
+        .map(node => domNodeToMarkdown(node, 0))
+        .join('')
+        .replace(/\n{3,}/g, '\n\n')
+        .trimEnd();
+    }
+
+    function moveCaretToEnd(el) {
+      if (!el || document.activeElement !== el) return;
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function updateWysiwygFromMarkdown(html) {
+      const surface = document.getElementById('wysiwyg-editor');
+      if (!surface || editorMode !== 'wysiwyg' || suppressWysiwygChange) return;
+      suppressWysiwygChange = true;
+      surface.innerHTML = html || '';
+      suppressWysiwygChange = false;
+    }
+
+    function syncWysiwygToMarkdown(renderAfterInput) {
+      if (suppressWysiwygChange || !editor || editorMode !== 'wysiwyg') return;
+      const surface = document.getElementById('wysiwyg-editor');
+      const markdown = wysiwygHtmlToMarkdown();
+      suppressEditorChange = true;
+      editor.setValue(markdown);
+      suppressEditorChange = false;
+      suppressWysiwygChange = true;
+      onEditorChange(editor, null);
+      suppressWysiwygChange = false;
+      if (renderAfterInput) {
+        clearTimeout(wysiwygRenderTimer);
+        wysiwygRenderTimer = setTimeout(() => {
+          suppressWysiwygChange = true;
+          const rawHtml = marked.parse(renderFootnoteMarkdown(normalizeMathMarkdown(editor.getValue())));
+          surface.innerHTML = window.DOMPurify ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } }) : rawHtml;
+          suppressWysiwygChange = false;
+          moveCaretToEnd(surface);
+        }, 320);
+      }
     }
 
 	    function normalizeServerDoc(raw) {
@@ -3974,10 +4547,39 @@ body{font-size:15px;line-height:1.8;}
     }
 
     function togglePreview() {
+      if (editorMode === 'wysiwyg') {
+        setEditorMode('split');
+      }
       previewVisible = !previewVisible;
       document.getElementById('preview-pane').classList.toggle('hidden', !previewVisible);
       document.getElementById('divider').style.display = previewVisible ? '' : 'none';
       document.getElementById('btn-preview').classList.toggle('active', !previewVisible);
+    }
+
+    function setEditorMode(mode) {
+      editorMode = mode === 'wysiwyg' ? 'wysiwyg' : 'split';
+      document.body.classList.toggle('wysiwyg-mode', editorMode === 'wysiwyg');
+      const btn = document.getElementById('btn-mode');
+      if (btn) {
+        btn.textContent = editorMode === 'wysiwyg' ? '所见即所得' : '对照';
+        btn.classList.toggle('active', editorMode === 'wysiwyg');
+      }
+      if (editorMode === 'wysiwyg') {
+        updatePreview();
+        setTimeout(() => {
+          const surface = document.getElementById('wysiwyg-editor');
+          if (surface) surface.focus();
+        }, 30);
+      } else if (editor) {
+        setTimeout(() => {
+          editor.refresh();
+          editor.focus();
+        }, 30);
+      }
+    }
+
+    function toggleEditorMode() {
+      setEditorMode(editorMode === 'wysiwyg' ? 'split' : 'wysiwyg');
     }
 
     function toggleFocus() {
@@ -4008,6 +4610,28 @@ body{font-size:15px;line-height:1.8;}
       const editorPane = document.getElementById('editor-pane');
       const previewPane = document.getElementById('preview-pane');
       let dragging = false, startX, startEW, startPW;
+
+      function fitSplitPanesToWorkArea() {
+        if (previewVisible === false || document.body.classList.contains('wysiwyg-mode')) return;
+        const workArea = document.getElementById('work-area');
+        if (!workArea || !editorPane.style.width) return;
+        const dividerWidth = divider.offsetWidth || 8;
+        const total = Math.max(0, workArea.clientWidth - dividerWidth - 10);
+        if (total <= 0) return;
+        if (total < 460) {
+          editorPane.style.flex = '1 1 50%';
+          editorPane.style.width = '';
+          previewPane.style.flex = '1 1 50%';
+        } else {
+          const current = editorPane.offsetWidth || total / 2;
+          const clamped = Math.max(220, Math.min(total - 220, current));
+          editorPane.style.flex = 'none';
+          editorPane.style.width = clamped + 'px';
+          previewPane.style.flex = '1 1 0';
+        }
+        if (editor) editor.refresh();
+      }
+
       divider.addEventListener('mousedown', e => {
         dragging = true;
         startX = e.clientX;
@@ -4032,6 +4656,7 @@ body{font-size:15px;line-height:1.8;}
         document.body.style.userSelect = '';
         if (editor) editor.refresh();
       });
+      window.addEventListener('resize', () => requestAnimationFrame(fitSplitPanesToWorkArea));
     })();
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -4102,16 +4727,81 @@ body{font-size:15px;line-height:1.8;}
       }
     }
 
+    async function saveDocToChosenFile(doc) {
+      if (!doc) return false;
+      const content = doc.content || '';
+      if (doc.filePath && window.LiteMDDesktop && typeof window.LiteMDDesktop.writeMarkdownFile === 'function') {
+        const result = await window.LiteMDDesktop.writeMarkdownFile({ filePath: doc.filePath, content });
+        doc.filePath = result.filePath || doc.filePath;
+        doc.fileName = result.fileName || doc.fileName;
+        saveDocs(docs);
+        updatePathDisplay();
+        return true;
+      }
+      const fileHandle = docFileHandles.get(doc.id);
+      if (fileHandle) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        doc.fileName = fileHandle.name;
+        saveDocs(docs);
+        updatePathDisplay();
+        return true;
+      }
+      return false;
+    }
+
+    async function chooseSaveTargetForDoc(doc) {
+      if (!doc) return false;
+      if (window.LiteMDDesktop && typeof window.LiteMDDesktop.createMarkdownFile === 'function') {
+        const result = await window.LiteMDDesktop.createMarkdownFile({
+          title: doc.title || 'untitled',
+          content: doc.content || ''
+        });
+        if (!result || result.canceled) return false;
+        doc.filePath = result.filePath;
+        doc.fileName = result.fileName;
+        doc.title = result.title || doc.title;
+        doc.autoTitle = false;
+        saveDocs(docs);
+        if (doc.id === activeId) document.getElementById('doc-title').value = doc.title;
+        updatePathDisplay();
+        renderDocList(document.getElementById('search-box').value);
+        return true;
+      }
+      if (window.showSaveFilePicker) {
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: ensureMdName(doc.title || 'untitled'),
+          types: [{ description: 'Markdown 文件', accept: { 'text/markdown': ['.md'] } }]
+        });
+        const writable = await fileHandle.createWritable();
+        await writable.write(doc.content || '');
+        await writable.close();
+        doc.fileName = fileHandle.name;
+        doc.title = fileHandle.name.replace(/\.md$/i, '') || doc.title;
+        doc.autoTitle = false;
+        docFileHandles.set(doc.id, fileHandle);
+        saveDocs(docs);
+        if (doc.id === activeId) document.getElementById('doc-title').value = doc.title;
+        updatePathDisplay();
+        renderDocList(document.getElementById('search-box').value);
+        return true;
+      }
+      return false;
+    }
+
     // Slugify title for use as folder/filename
     function slugify(str) {
       return str.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').slice(0, 40) || 'untitled';
     }
 
     // Save current document to filesystem: workspace/{slug}_{id}/note.md
-    async function saveToFileSystem() {
-      if (!rootDirHandle || !activeId) return;
-      const doc = docs.find(d => d.id === activeId);
+    async function saveToFileSystem(docId) {
+      const targetId = docId || activeId;
+      const doc = docs.find(d => d.id === targetId);
       if (!doc) return;
+      if (await saveDocToChosenFile(doc)) return;
+      if (!rootDirHandle || !targetId) return;
       try {
         // Verify we still have permission
         const perm = await rootDirHandle.requestPermission({ mode: 'readwrite' });
@@ -4156,23 +4846,27 @@ body{font-size:15px;line-height:1.8;}
       const el = document.getElementById('stat-path');
       if (!el) return;
       const doc = docs.find(d => d.id === activeId);
-      if (rootDirHandle && doc && doc.fsFolder) {
-        el.innerHTML = `<span class="path-icon">📂</span>${rootDirHandle.name}/${doc.fsFolder}/${doc.fsFile}`;
-        el.title = '工作区：' + rootDirHandle.name + '/' + doc.fsFolder + '/' + doc.fsFile;
+      const pathText = displayPathForDoc(doc);
+      if (pathText) {
+        el.innerHTML = `<span class="path-icon">📂</span>${escHtml(pathText)}`;
+        el.title = '路径：' + pathText;
       } else if (rootDirHandle) {
         el.innerHTML = `<span class="path-icon">📂</span>${rootDirHandle.name}/（未保存到磁盘）`;
+        el.title = '工作区：' + rootDirHandle.name;
       } else {
         el.innerHTML = '';
+        el.title = '';
       }
     }
 
     function revealInFolder() {
       // No web API to reveal in Finder, just toast the path
       const doc = docs.find(d => d.id === activeId);
-      if (rootDirHandle && doc && doc.fsFolder) {
-        navigator.clipboard.writeText(rootDirHandle.name + '/' + doc.fsFolder + '/' + doc.fsFile)
+      const pathText = displayPathForDoc(doc);
+      if (pathText) {
+        navigator.clipboard.writeText(pathText)
           .then(() => toast('📋 路径已复制到剪贴板'))
-          .catch(() => toast(rootDirHandle.name + '/' + doc.fsFolder + '/' + doc.fsFile));
+          .catch(() => toast(pathText));
       }
     }
 
@@ -4192,7 +4886,8 @@ body{font-size:15px;line-height:1.8;}
         // Create a new doc entry for this file
         const title = file.name.replace(/\.(md|txt)$/i, '');
         const id = genId();
-	        const newDoc = { id, title, content, createdAt: Date.now(), updatedAt: Date.now(), fsOpened: file.name, autoTitle: false };
+	        const newDoc = { id, title, content, createdAt: Date.now(), updatedAt: Date.now(), fsOpened: file.name, fileName: file.name, autoTitle: false };
+        docFileHandles.set(id, fileHandle);
         docs.unshift(newDoc);
         saveDocs(docs);
         setActive(id);
@@ -4342,7 +5037,13 @@ body{font-size:15px;line-height:1.8;}
     // ═══════════════════════════════════════════════════════════════════════════
 	    document.addEventListener('keydown', e => {
 	      const ctrl = e.ctrlKey || e.metaKey;
-	      if (ctrl && e.key === 'n') { e.preventDefault(); createDoc(); }
+	      if (ctrl && e.key === 'n') {
+	        e.preventDefault();
+	        saveActive({ syncServer: false, updateStatus: false, render: false });
+	        createNewMarkdownDoc().catch(err => {
+	          if (err.name !== 'AbortError') toast('新建失败：' + err.message);
+	        });
+	      }
 	      if (ctrl && e.key.toLowerCase() === 'b' && !e.shiftKey) { e.preventDefault(); wrapSelection('**', '**', '粗体'); }
 	      if (ctrl && e.key.toLowerCase() === 'i') { e.preventDefault(); wrapSelection('*', '*', '斜体'); }
 	      if (ctrl && e.key.toLowerCase() === 'k') { e.preventDefault(); insertLinkMarkdown(); }
@@ -4354,7 +5055,7 @@ body{font-size:15px;line-height:1.8;}
         } else {
           flushCloudSave(true).catch(err => toast('同步失败：' + err.message));
         }
-        if (rootDirHandle) saveToFileSystem();
+        saveToFileSystem().catch(err => toast('保存到文件失败：' + err.message));
         toast('已保存');
 	      }
 	      if (ctrl && e.key === 'p') { e.preventDefault(); togglePreview(); }
@@ -4481,8 +5182,18 @@ body{font-size:15px;line-height:1.8;}
       renderDocList(e.target.value);
     });
 
+    document.getElementById('wysiwyg-editor').addEventListener('input', () => syncWysiwygToMarkdown(true));
+    document.getElementById('wysiwyg-editor').addEventListener('blur', () => syncWysiwygToMarkdown(false));
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#doc-context-menu') && !e.target.closest('.doc-item-actions')) closeDocMenu();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeDocMenu();
+    });
+
     // ─── Button wiring ─────────────────────────────────────────────────────────
     document.getElementById('btn-sidebar').addEventListener('click', toggleSidebar);
+    document.getElementById('btn-mode').addEventListener('click', toggleEditorMode);
     document.getElementById('btn-preview').addEventListener('click', togglePreview);
 	    document.getElementById('btn-focus').addEventListener('click', toggleFocus);
 	    document.getElementById('btn-theme').addEventListener('click', toggleTheme);
@@ -4496,13 +5207,17 @@ body{font-size:15px;line-height:1.8;}
 	    document.getElementById('btn-task').addEventListener('click', () => applyLinePrefix('- [ ] '));
 	    document.getElementById('btn-table').addEventListener('click', () => insertMarkdown('| 列1 | 列2 | 列3 |\n|---|---|---|\n| 内容 | 内容 | 内容 |', 0));
 	    document.getElementById('btn-math').addEventListener('click', () => insertMarkdown('$$\n\n$$', -3));
-	    document.getElementById('btn-image').addEventListener('click', insertImageMarkdown);
+    document.getElementById('btn-image').addEventListener('click', insertImageMarkdown);
     document.getElementById('btn-new').addEventListener('click', async () => {
       saveActive({ syncServer: false, updateStatus: false, render: false });
       if (!IS_LOCAL_FILE) {
         try { await flushCloudSave(true); } catch { }
       }
-      createDoc();
+      try {
+        await createNewMarkdownDoc();
+      } catch (e) {
+        if (e.name !== 'AbortError') toast('新建失败：' + e.message);
+      }
     });
     document.getElementById('btn-login').addEventListener('click', () => loginOrRegister('login'));
     document.getElementById('btn-register').addEventListener('click', () => loginOrRegister('register'));

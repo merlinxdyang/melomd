@@ -233,6 +233,15 @@ gantt
       if (document.getElementById('btn-edit-menu') || document.getElementById('edit-menu')) {
         throw new Error('Edit dropdown should not remain after moving edit actions to toolbar buttons');
       }
+      const toolbarTools = document.querySelector('#toolbar .toolbar-tools');
+      if (!toolbarTools || document.querySelectorAll('#toolbar .toolbar-tools .tool-row').length !== 2) {
+        throw new Error('Expected editing toolbar to be arranged as two tool rows');
+      }
+      const editRowTop = Math.round(document.querySelector('#toolbar .edit-actions').getBoundingClientRect().top);
+      const formatRowTop = Math.round(document.querySelector('#toolbar .format-actions').getBoundingClientRect().top);
+      if (formatRowTop <= editRowTop) {
+        throw new Error('Expected yellow/red formatting tools to occupy the second toolbar row');
+      }
       const toolbarNodes = Array.from(document.querySelectorAll('#toolbar button, #toolbar input'));
       const firstEditIndex = toolbarNodes.indexOf(document.getElementById('btn-undo'));
       const boldIndex = toolbarNodes.indexOf(document.getElementById('btn-bold'));
@@ -247,7 +256,7 @@ gantt
           const rect = button.getBoundingClientRect();
           return rect.width < 30 || rect.height < 30;
         });
-      if (toolbarRect.height > 72) {
+      if (toolbarRect.height > 108) {
         throw new Error('Toolbar became too tall after UI restyle: ' + toolbarRect.height);
       }
       if (toolbarOverflow) {
@@ -261,9 +270,45 @@ gantt
       if (brokenToolbarIcon) {
         throw new Error('Toolbar icon failed to load: ' + brokenToolbarIcon.getAttribute('src'));
       }
+      document.getElementById('btn-mode').click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      if (!document.body.classList.contains('wysiwyg-mode') || getComputedStyle(document.getElementById('wysiwyg-pane')).display === 'none') {
+        throw new Error('WYSIWYG mode did not switch to the single rendered editor pane');
+      }
+      const wysiwygWidthAt1200 = document.getElementById('wysiwyg-editor').getBoundingClientRect().width;
+      const wysiwygPaneWidthAt1200 = document.getElementById('wysiwyg-pane').getBoundingClientRect().width;
+      if (wysiwygWidthAt1200 < wysiwygPaneWidthAt1200 - 90) {
+        throw new Error('WYSIWYG editable area should fill the available pane width at desktop size');
+      }
+      const wysiwygEditor = document.getElementById('wysiwyg-editor');
+      wysiwygEditor.textContent = '# Runtime WYSIWYG';
+      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: 'G' }));
+      await new Promise(resolve => setTimeout(resolve, 450));
+      if (!document.querySelector('#wysiwyg-editor h1') || !window.LiteMDRuntime.getMarkdown().includes('Runtime WYSIWYG')) {
+        throw new Error('WYSIWYG editor did not render typed Markdown into formatted output');
+      }
+      document.getElementById('btn-mode').click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      if (document.body.classList.contains('wysiwyg-mode')) {
+        throw new Error('Mode toggle did not return to split comparison mode');
+      }
+      window.LiteMDRuntime.setMarkdown(${JSON.stringify(ganttMarkdown)});
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const firstHistoryMenuButton = document.querySelector('.doc-item-actions');
+      if (!firstHistoryMenuButton) {
+        throw new Error('Expected every history item to expose an action menu button');
+      }
+      firstHistoryMenuButton.click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const docMenu = document.getElementById('doc-context-menu');
+      const menuText = docMenu.textContent;
+      if (!docMenu.classList.contains('open') || !menuText.includes('保存') || !menuText.includes('复制内容') || !menuText.includes('粘贴到文档') || !menuText.includes('复制路径') || !menuText.includes('删除')) {
+        throw new Error('History item menu is missing required document actions');
+      }
+      document.body.click();
       const brand = document.querySelector('.toolbar-brand');
       const brandPopover = document.getElementById('brand-info-popover');
-      if (!brand || !brandPopover || !brandPopover.textContent.includes('A fresh Markdown editor') || !brandPopover.textContent.includes('Version') || !brandPopover.textContent.includes('2.0')) {
+      if (!brand || !brandPopover || !brandPopover.textContent.includes('A fresh Markdown editor') || !brandPopover.textContent.includes('Version') || !brandPopover.textContent.includes('3.0')) {
         throw new Error('Expected MeloMD brand info popover content');
       }
       if (getComputedStyle(brandPopover).visibility !== 'hidden') {
@@ -346,6 +391,55 @@ gantt
       };
     })();
   `);
+
+  win.setSize(360, 860);
+  await new Promise(resolve => setTimeout(resolve, 350));
+  const narrowToolbar = await win.webContents.executeJavaScript(`
+    (() => {
+      const toolbar = document.getElementById('toolbar');
+      const toolbarRect = toolbar.getBoundingClientRect();
+      const visibleControls = Array.from(toolbar.querySelectorAll('button, input'))
+        .filter(control => control.offsetParent !== null);
+      const clipped = visibleControls
+        .map(control => ({ id: control.id || control.className || control.tagName, rect: control.getBoundingClientRect() }))
+        .filter(item => item.rect.left < toolbarRect.left - 1 || item.rect.right > toolbarRect.right + 1);
+      const overflow = toolbar.scrollWidth > Math.ceil(toolbar.clientWidth) + 2;
+      return {
+        viewportWidth: window.innerWidth,
+        toolbarWidth: Math.round(toolbarRect.width),
+        toolbarHeight: Math.round(toolbarRect.height),
+        scrollWidth: toolbar.scrollWidth,
+        clientWidth: toolbar.clientWidth,
+        overflow,
+        clipped: clipped.map(item => item.id),
+        controlCount: visibleControls.length,
+      };
+    })();
+  `);
+  if (narrowToolbar.overflow || narrowToolbar.clipped.length) {
+    throw new Error(`Toolbar should wrap instead of requiring horizontal scroll at narrow width: ${JSON.stringify(narrowToolbar)}`);
+  }
+  win.setSize(1200, 800);
+  await new Promise(resolve => setTimeout(resolve, 150));
+
+  const responsiveEditor = await win.webContents.executeJavaScript(`
+    (async () => {
+      document.getElementById('btn-mode').click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const widthBefore = document.getElementById('wysiwyg-editor').getBoundingClientRect().width;
+      return { widthBefore };
+    })();
+  `);
+  win.setSize(1800, 860);
+  await new Promise(resolve => setTimeout(resolve, 250));
+  responsiveEditor.widthAfter = await win.webContents.executeJavaScript(`
+    document.getElementById('wysiwyg-editor').getBoundingClientRect().width
+  `);
+  if (responsiveEditor.widthAfter <= responsiveEditor.widthBefore + 300) {
+    throw new Error(`WYSIWYG editable area should grow when the app window grows: ${JSON.stringify(responsiveEditor)}`);
+  }
+  win.setSize(1200, 800);
+  await new Promise(resolve => setTimeout(resolve, 150));
 
   const seriousMessages = consoleMessages.filter(entry => {
     const message = String(entry.message || '');

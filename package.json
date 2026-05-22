@@ -1,9 +1,9 @@
 {
   "name": "melomd-desktop",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": "merlinyang",
   "license": "MIT",
-  "description": "MeloMD macOS desktop app wrapper",
+  "description": "MeloMD cross-platform Markdown editor",
   "main": "electron/main.js",
   "scripts": {
     "dev": "electron .",
@@ -17,12 +17,13 @@
   },
   "build": {
     "appId": "com.melomd.desktop",
-    "productName": "MeloMD",
+    "productName": "MeloMD 3.0",
     "directories": {
       "output": "dist"
     },
     "mac": {
       "icon": "assets/brand/melomd-icon.icns",
+      "artifactName": "MeloMD-${version}-mac-${arch}.${ext}",
       "target": [
         "dmg",
         "zip"
@@ -31,6 +32,7 @@
     },
     "win": {
       "icon": "assets/brand/melomd-icon.ico",
+      "artifactName": "MeloMD-${version}-win-${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
@@ -61,6 +63,7 @@
       "MDFILES/**/*",
       "electron/**/*",
       "README.md",
+      "README.zh-CN.md",
       "LICENSE",
       ".gitignore"
     ]
