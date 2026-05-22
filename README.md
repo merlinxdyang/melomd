@@ -4,7 +4,7 @@ English | [简体中文](README.zh-CN.md)
 
 MeloMD is a local-first Markdown editor for fast writing, live preview, academic notes, technical documents, and export to common document formats.
 
-Developed by **X.D. Yang**. Current version: **3.0.1**.
+Developed by **X.D. Yang**. Current version: **3.0.2**.
 
 ## What Is New in 3.0
 
@@ -33,14 +33,14 @@ Developed by **X.D. Yang**. Current version: **3.0.1**.
 
 Installers and archives are published on the GitHub Releases page.
 
-Expected 3.0.1 release assets:
+Expected 3.0.2 release assets:
 
-- `MeloMD-3.0.1-mac-arm64.dmg` for Apple Silicon Macs.
-- `MeloMD-3.0.1-mac-arm64.zip` as a macOS Apple Silicon app archive.
-- `MeloMD-3.0.1-mac-x64.dmg` for Intel Macs.
-- `MeloMD-3.0.1-mac-x64.zip` as a macOS Intel app archive.
-- `MeloMD-3.0.1-win-x64.exe` for 64-bit Windows.
-- `MeloMD-3.0.1-win-x64.zip` as a portable 64-bit Windows archive.
+- `MeloMD-3.0.2-mac-arm64.dmg` for Apple Silicon Macs.
+- `MeloMD-3.0.2-mac-arm64.zip` as a macOS Apple Silicon app archive.
+- `MeloMD-3.0.2-mac-x64.dmg` for Intel Macs.
+- `MeloMD-3.0.2-mac-x64.zip` as a macOS Intel app archive.
+- `MeloMD-3.0.2-win-x64.exe` for 64-bit Windows.
+- `MeloMD-3.0.2-win-x64.zip` as a portable 64-bit Windows archive.
 
 These local builds are unsigned unless signing certificates are available during packaging. macOS may require opening from **System Settings > Privacy & Security** or using **Open** from the Finder context menu. Windows may show a SmartScreen warning for unsigned installers.
 

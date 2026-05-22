@@ -791,6 +791,88 @@
       word-break: break-word;
     }
 
+    #wysiwyg-editor .CodeMirror {
+      height: calc(100vh - 220px) !important;
+      min-height: calc(100vh - 220px);
+      padding: 0;
+      border: 0;
+      background: transparent !important;
+      box-shadow: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    #wysiwyg-editor .CodeMirror-scroll {
+      padding: 0;
+      min-height: calc(100vh - 220px);
+    }
+
+    #wysiwyg-editor .CodeMirror-lines {
+      padding: 0;
+    }
+
+    #wysiwyg-editor .CodeMirror-line {
+      padding: 0;
+    }
+
+    #wysiwyg-editor .CodeMirror pre.CodeMirror-line,
+    #wysiwyg-editor .CodeMirror pre.CodeMirror-line-like,
+    #wysiwyg-editor .CodeMirror pre {
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+
+    #wysiwyg-editor .CodeMirror-linebackground {
+      background: transparent !important;
+    }
+
+    #wysiwyg-editor .cm-header {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    #wysiwyg-editor .cm-header-1 {
+      font-size: 2em;
+    }
+
+    #wysiwyg-editor .cm-header-2 {
+      font-size: 1.55em;
+    }
+
+    #wysiwyg-editor .cm-header-3 {
+      font-size: 1.25em;
+      color: var(--accent);
+    }
+
+    #wysiwyg-editor .cm-formatting-header {
+      color: var(--accent);
+      opacity: .3;
+      font-size: .72em;
+    }
+
+    #wysiwyg-editor .cm-strong {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    #wysiwyg-editor .cm-em {
+      font-style: italic;
+      color: var(--text);
+    }
+
+    #wysiwyg-editor .cm-formatting-strong,
+    #wysiwyg-editor .cm-formatting-em {
+      color: var(--accent);
+      opacity: .32;
+    }
+
     #wysiwyg-editor:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-soft), 0 14px 34px rgba(31, 41, 51, .11);
@@ -2049,6 +2131,7 @@
     let suppressWysiwygChange = false;
     let isWysiwygComposing = false;
     let wysiwygRenderTimer = null;
+    let wysiwygEditor = null;
     const docFileHandles = new Map();
 
     // ─── Slash command definitions ──────────────────────────────────────────────
@@ -2428,6 +2511,20 @@
     marked.setOptions({ renderer: markedRenderer, breaks: true, gfm: true });
 
     // ─── CodeMirror init ───────────────────────────────────────────────────────
+    function sharedEditorKeys() {
+      return {
+        'Enter': 'newlineAndIndentContinueMarkdownList',
+        'Tab': cm => cm.execCommand('indentMore'),
+        'Shift-Tab': cm => cm.execCommand('indentLess'),
+        'Ctrl-Z': cm => { cm.execCommand('undo'); takeSnapshot(activeId, cm.getValue(), true); },
+        'Cmd-Z': cm => { cm.execCommand('undo'); takeSnapshot(activeId, cm.getValue(), true); },
+        'Ctrl-Y': cm => cm.execCommand('redo'),
+        'Cmd-Y': cm => cm.execCommand('redo'),
+        'Ctrl-Shift-Z': cm => cm.execCommand('redo'),
+        'Cmd-Shift-Z': cm => cm.execCommand('redo'),
+      };
+    }
+
     function initEditor() {
       editor = CodeMirror(document.getElementById('editor-wrap'), {
         mode: 'markdown',
@@ -2437,17 +2534,7 @@
         autofocus: true,
         undoDepth: 50,
         placeholder: '开始写作…\n\n支持 Markdown 语法，实时预览在右侧。',
-        extraKeys: {
-          'Enter': 'newlineAndIndentContinueMarkdownList',
-          'Tab': cm => cm.execCommand('indentMore'),
-          'Shift-Tab': cm => cm.execCommand('indentLess'),
-          'Ctrl-Z': cm => { cm.execCommand('undo'); takeSnapshot(activeId, cm.getValue(), true); },
-          'Cmd-Z': cm => { cm.execCommand('undo'); takeSnapshot(activeId, cm.getValue(), true); },
-          'Ctrl-Y': cm => cm.execCommand('redo'),
-          'Cmd-Y': cm => cm.execCommand('redo'),
-          'Ctrl-Shift-Z': cm => cm.execCommand('redo'),
-          'Cmd-Shift-Z': cm => cm.execCommand('redo'),
-        }
+        extraKeys: sharedEditorKeys()
       });
       editor.on('change', onEditorChange);
       editor.on('keydown', onEditorKeydown);
@@ -2455,6 +2542,34 @@
       // Set height
       document.getElementById('editor-wrap').style.height = '100%';
       editor.setSize('100%', '100%');
+    }
+
+    function initWysiwygEditor() {
+      wysiwygEditor = CodeMirror(document.getElementById('wysiwyg-editor'), {
+        mode: 'markdown',
+        theme: isDark ? 'dracula' : 'default',
+        lineNumbers: false,
+        lineWrapping: true,
+        autofocus: false,
+        undoDepth: 50,
+        placeholder: '开始写作。普通文本会像文本编辑器一样输入；加入 Markdown 语法会立即显示对应样式。',
+        extraKeys: sharedEditorKeys()
+      });
+      wysiwygEditor.on('change', cm => {
+        if (suppressWysiwygChange || !editor) return;
+        const markdown = cm.getValue();
+        suppressEditorChange = true;
+        editor.setValue(markdown);
+        suppressEditorChange = false;
+        suppressWysiwygChange = true;
+        onEditorChange(editor, null);
+        suppressWysiwygChange = false;
+      });
+      wysiwygEditor.setSize('100%', '100%');
+    }
+
+    function activeCodeEditor() {
+      return editorMode === 'wysiwyg' && wysiwygEditor ? wysiwygEditor : editor;
     }
 
     // ─── Editor change ─────────────────────────────────────────────────────────
@@ -2896,7 +3011,7 @@
         ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } })
         : rawHtml;
       document.getElementById('preview').innerHTML = safeHtml;
-	      updateWysiwygFromMarkdown(safeHtml);
+	      updateWysiwygFromMarkdown(editor.getValue());
 	      assignPreviewSourceMarkers(sourceMarkers);
       // Mermaid diagrams (mermaid class added by our renderer)
       let renderPromise = Promise.resolve();
@@ -3496,11 +3611,11 @@
       selection.addRange(range);
     }
 
-    function updateWysiwygFromMarkdown(html) {
-      const surface = document.getElementById('wysiwyg-editor');
-      if (!surface || editorMode !== 'wysiwyg' || suppressWysiwygChange || isWysiwygComposing) return;
+    function updateWysiwygFromMarkdown(markdown) {
+      if (!wysiwygEditor || suppressWysiwygChange || isWysiwygComposing) return;
+      if (wysiwygEditor.getValue() === (markdown || '')) return;
       suppressWysiwygChange = true;
-      surface.innerHTML = html || '';
+      wysiwygEditor.setValue(markdown || '');
       suppressWysiwygChange = false;
     }
 
@@ -4438,47 +4553,52 @@ body{font-size:15px;line-height:1.8;}
 	    }
 	
 	    function wrapSelection(prefix, suffix, placeholder) {
-	      if (!editor) return;
-	      const selection = editor.getSelection();
+	      const targetEditor = activeCodeEditor();
+	      if (!targetEditor) return;
+	      const selection = targetEditor.getSelection();
 	      const text = selection || placeholder || '';
-	      editor.replaceSelection(prefix + text + suffix);
+	      targetEditor.replaceSelection(prefix + text + suffix);
 	      if (!selection && placeholder) {
-	        const cursor = editor.getCursor();
-	        const start = editor.posFromIndex(editor.indexFromPos(cursor) - suffix.length - placeholder.length);
-	        const end = editor.posFromIndex(editor.indexFromPos(start) + placeholder.length);
-	        editor.setSelection(start, end);
+	        const cursor = targetEditor.getCursor();
+	        const start = targetEditor.posFromIndex(targetEditor.indexFromPos(cursor) - suffix.length - placeholder.length);
+	        const end = targetEditor.posFromIndex(targetEditor.indexFromPos(start) + placeholder.length);
+	        targetEditor.setSelection(start, end);
 	      }
-	      editor.focus();
+	      targetEditor.focus();
 	    }
 	
 	    function insertMarkdown(text, cursorOffset) {
-	      if (!editor) return;
-	      editor.replaceSelection(text);
+	      const targetEditor = activeCodeEditor();
+	      if (!targetEditor) return;
+	      targetEditor.replaceSelection(text);
 	      if (typeof cursorOffset === 'number') {
-	        const cursor = editor.getCursor();
-	        editor.setCursor(editor.posFromIndex(editor.indexFromPos(cursor) + cursorOffset));
+	        const cursor = targetEditor.getCursor();
+	        targetEditor.setCursor(targetEditor.posFromIndex(targetEditor.indexFromPos(cursor) + cursorOffset));
 	      }
-	      editor.focus();
+	      targetEditor.focus();
 	    }
 	
 	    function applyLinePrefix(prefix) {
-	      if (!editor) return;
-	      const selections = editor.listSelections();
+	      const targetEditor = activeCodeEditor();
+	      if (!targetEditor) return;
+	      const selections = targetEditor.listSelections();
 	      const primary = selections[0];
 	      const fromLine = Math.min(primary.anchor.line, primary.head.line);
 	      const toLine = Math.max(primary.anchor.line, primary.head.line);
 	      for (let line = fromLine; line <= toLine; line++) {
-	        editor.replaceRange(prefix, { line, ch: 0 });
+	        targetEditor.replaceRange(prefix, { line, ch: 0 });
 	      }
-	      editor.focus();
+	      targetEditor.focus();
 	    }
 	
 	    function insertLinkMarkdown() {
-	      const selection = editor.getSelection() || '链接文字';
-	      editor.replaceSelection(`[${selection}](https://)`);
-	      const cursor = editor.getCursor();
-	      editor.setCursor(editor.posFromIndex(editor.indexFromPos(cursor) - 1));
-	      editor.focus();
+	      const targetEditor = activeCodeEditor();
+	      if (!targetEditor) return;
+	      const selection = targetEditor.getSelection() || '链接文字';
+	      targetEditor.replaceSelection(`[${selection}](https://)`);
+	      const cursor = targetEditor.getCursor();
+	      targetEditor.setCursor(targetEditor.posFromIndex(targetEditor.indexFromPos(cursor) - 1));
+	      targetEditor.focus();
 	    }
 
 	    function pickImageFile() {
@@ -4595,8 +4715,11 @@ body{font-size:15px;line-height:1.8;}
       if (editorMode === 'wysiwyg') {
         updatePreview();
         setTimeout(() => {
-          const surface = document.getElementById('wysiwyg-editor');
-          if (surface) surface.focus();
+          updateWysiwygFromMarkdown(editor ? editor.getValue() : '');
+          if (wysiwygEditor) {
+            wysiwygEditor.refresh();
+            wysiwygEditor.focus();
+          }
         }, 30);
       } else if (editor) {
         setTimeout(() => {
@@ -5210,16 +5333,6 @@ body{font-size:15px;line-height:1.8;}
       renderDocList(e.target.value);
     });
 
-    document.getElementById('wysiwyg-editor').addEventListener('compositionstart', () => {
-      isWysiwygComposing = true;
-      clearTimeout(wysiwygRenderTimer);
-    });
-    document.getElementById('wysiwyg-editor').addEventListener('compositionend', e => {
-      isWysiwygComposing = false;
-      syncWysiwygToMarkdown(true, e);
-    });
-    document.getElementById('wysiwyg-editor').addEventListener('input', e => syncWysiwygToMarkdown(true, e));
-    document.getElementById('wysiwyg-editor').addEventListener('blur', () => syncWysiwygToMarkdown(false));
     document.addEventListener('click', e => {
       if (!e.target.closest('#doc-context-menu') && !e.target.closest('.doc-item-actions')) closeDocMenu();
     });
@@ -5277,6 +5390,7 @@ body{font-size:15px;line-height:1.8;}
     // ─── Bootstrap ─────────────────────────────────────────────────────────────
 	    (async function init() {
 	      initEditor();
+	      initWysiwygEditor();
 	      installRuntimeHooks();
 	      updateAuthUI();
 

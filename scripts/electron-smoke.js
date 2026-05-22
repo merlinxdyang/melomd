@@ -280,26 +280,40 @@ gantt
       if (wysiwygWidthAt1200 < wysiwygPaneWidthAt1200 - 90) {
         throw new Error('WYSIWYG editable area should fill the available pane width at desktop size');
       }
-      const wysiwygEditor = document.getElementById('wysiwyg-editor');
-      wysiwygEditor.textContent = 'Plain English ';
-      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ' ' }));
-      await new Promise(resolve => setTimeout(resolve, 300));
-      if (wysiwygEditor.textContent !== 'Plain English ' || !window.LiteMDRuntime.getMarkdown().endsWith(' ')) {
+      const wysiwygHost = document.querySelector('#wysiwyg-editor .CodeMirror');
+      const wysiwygCm = wysiwygHost && wysiwygHost.CodeMirror;
+      if (!wysiwygCm) {
+        throw new Error('WYSIWYG mode should use a CodeMirror editing surface');
+      }
+      wysiwygCm.setValue('Plain English ');
+      await new Promise(resolve => setTimeout(resolve, 120));
+      if (!window.LiteMDRuntime.getMarkdown().endsWith(' ')) {
         throw new Error('WYSIWYG editor should preserve normal trailing spaces while typing plain text');
       }
-      wysiwygEditor.textContent = '测试';
-      wysiwygEditor.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: 'ce' }));
-      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertCompositionText', data: '测试' }));
-      await new Promise(resolve => setTimeout(resolve, 300));
-      if (document.querySelector('#wysiwyg-editor h1') || wysiwygEditor.textContent !== '测试') {
-        throw new Error('WYSIWYG editor should not rerender DOM during IME composition input');
+      wysiwygCm.setValue('# shthis');
+      wysiwygCm.setCursor({ line: 0, ch: 8 });
+      wysiwygCm.replaceSelection('\\n');
+      await new Promise(resolve => setTimeout(resolve, 120));
+      const cursorAfterEnter = wysiwygCm.getCursor();
+      if (cursorAfterEnter.line !== 1 || cursorAfterEnter.ch !== 0) {
+        throw new Error('WYSIWYG editor should keep cursor on the new line after Enter in a heading');
       }
-      wysiwygEditor.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '测试' }));
-      wysiwygEditor.textContent = '# Runtime WYSIWYG';
-      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ' ' }));
-      await new Promise(resolve => setTimeout(resolve, 300));
-      if (!document.querySelector('#wysiwyg-editor h1') || !window.LiteMDRuntime.getMarkdown().includes('Runtime WYSIWYG')) {
-        throw new Error('WYSIWYG editor did not render typed Markdown into formatted output');
+      wysiwygCm.replaceSelection('## 测试汉语 **继续**');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      if (!window.LiteMDRuntime.getMarkdown().includes('## 测试汉语 **继续**')) {
+        throw new Error('WYSIWYG editor did not preserve Markdown typed after an existing heading');
+      }
+      if (!document.querySelector('#wysiwyg-editor .cm-header-1') || !document.querySelector('#wysiwyg-editor .cm-header-2') || !document.querySelector('#wysiwyg-editor .cm-strong')) {
+        throw new Error('WYSIWYG editor should style headings and inline bold Markdown tokens during editing');
+      }
+      const scrollBeforeDelete = document.getElementById('wysiwyg-pane').scrollTop;
+      wysiwygCm.setCursor({ line: 1, ch: 8 });
+      wysiwygCm.replaceRange('', { line: 1, ch: 7 }, { line: 1, ch: 8 });
+      await new Promise(resolve => setTimeout(resolve, 200));
+      const cursorAfterDelete = wysiwygCm.getCursor();
+      const scrollAfterDelete = document.getElementById('wysiwyg-pane').scrollTop;
+      if (cursorAfterDelete.line !== 1 || Math.abs(scrollAfterDelete - scrollBeforeDelete) > 80) {
+        throw new Error('WYSIWYG editor should not jump cursor or page after backspace-style edits');
       }
       document.getElementById('btn-mode').click();
       await new Promise(resolve => requestAnimationFrame(resolve));

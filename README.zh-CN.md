@@ -4,7 +4,7 @@
 
 MeloMD 是一个本地优先的 Markdown 编辑器，面向快速写作、实时预览、学术笔记、技术文档和多格式导出。
 
-开发者：**X.D. Yang**。当前版本：**3.0.1**。
+开发者：**X.D. Yang**。当前版本：**3.0.2**。
 
 ## 3.0 新增内容
 
@@ -33,14 +33,14 @@ MeloMD 是一个本地优先的 Markdown 编辑器，面向快速写作、实时
 
 安装包和压缩包发布在 GitHub Releases 页面。
 
-预计 3.0.1 发布文件：
+预计 3.0.2 发布文件：
 
-- `MeloMD-3.0.1-mac-arm64.dmg`：Apple Silicon Mac 安装包。
-- `MeloMD-3.0.1-mac-arm64.zip`：Apple Silicon macOS 应用压缩包。
-- `MeloMD-3.0.1-mac-x64.dmg`：Intel Mac 安装包。
-- `MeloMD-3.0.1-mac-x64.zip`：Intel macOS 应用压缩包。
-- `MeloMD-3.0.1-win-x64.exe`：64 位 Windows 安装包。
-- `MeloMD-3.0.1-win-x64.zip`：64 位 Windows 便携压缩包。
+- `MeloMD-3.0.2-mac-arm64.dmg`：Apple Silicon Mac 安装包。
+- `MeloMD-3.0.2-mac-arm64.zip`：Apple Silicon macOS 应用压缩包。
+- `MeloMD-3.0.2-mac-x64.dmg`：Intel Mac 安装包。
+- `MeloMD-3.0.2-mac-x64.zip`：Intel macOS 应用压缩包。
+- `MeloMD-3.0.2-win-x64.exe`：64 位 Windows 安装包。
+- `MeloMD-3.0.2-win-x64.zip`：64 位 Windows 便携压缩包。
 
 这些本地构建默认未签名，除非打包时提供了平台签名证书。macOS 首次打开时可能需要在 **系统设置 > 隐私与安全性** 中允许，或在 Finder 里右键选择 **打开**。Windows 可能显示 SmartScreen 未签名警告。
 
