@@ -1,0 +1,124 @@
+name: Build and Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build"
+        required: true
+        default: "v3.0.0"
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+      - name: Build Apple Silicon macOS artifacts
+        run: npm run dist:mac-arm64
+
+      - name: Build Intel macOS artifacts
+        run: npm run dist:mac-x64
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: melomd-macos
+          path: |
+            dist/MeloMD-*.dmg
+            dist/MeloMD-*.zip
+          if-no-files-found: error
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+      - name: Build Windows x64 artifacts
+        run: npm run dist:win-x64
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: melomd-windows
+          path: |
+            dist/MeloMD-*.exe
+            dist/MeloMD-*.zip
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs:
+      - build-macos
+      - build-windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: MeloMD 3.0.0
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: release-assets/*
+          body: |
+            MeloMD 3.0.0 release.
+
+            Highlights:
+            - Two-row responsive toolbar.
+            - Split comparison mode plus single-pane WYSIWYG mode.
+            - Responsive editable and preview surfaces.
+            - Per-document history actions: save, delete, copy, paste, view path, and copy path.
+            - Save dialog first when creating new Markdown files, defaulting to .md.
+            - Corrected macOS Dock icon sizing and transparency.
+
+            Assets:
+            - macOS Apple Silicon: MeloMD-3.0.0-mac-arm64.dmg / .zip
+            - macOS Intel: MeloMD-3.0.0-mac-x64.dmg / .zip
+            - Windows x64: MeloMD-3.0.0-win-x64.exe / .zip
+
+            Notes:
+            - Builds are unsigned. macOS Gatekeeper and Windows SmartScreen may warn on first launch.
+            - Validation: npm run test:smoke, macOS arm64/x64 packaging, Windows x64 packaging.
