@@ -281,9 +281,23 @@ gantt
         throw new Error('WYSIWYG editable area should fill the available pane width at desktop size');
       }
       const wysiwygEditor = document.getElementById('wysiwyg-editor');
+      wysiwygEditor.textContent = 'Plain English ';
+      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ' ' }));
+      await new Promise(resolve => setTimeout(resolve, 300));
+      if (wysiwygEditor.textContent !== 'Plain English ' || !window.LiteMDRuntime.getMarkdown().endsWith(' ')) {
+        throw new Error('WYSIWYG editor should preserve normal trailing spaces while typing plain text');
+      }
+      wysiwygEditor.textContent = '测试';
+      wysiwygEditor.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: 'ce' }));
+      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertCompositionText', data: '测试' }));
+      await new Promise(resolve => setTimeout(resolve, 300));
+      if (document.querySelector('#wysiwyg-editor h1') || wysiwygEditor.textContent !== '测试') {
+        throw new Error('WYSIWYG editor should not rerender DOM during IME composition input');
+      }
+      wysiwygEditor.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '测试' }));
       wysiwygEditor.textContent = '# Runtime WYSIWYG';
-      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: 'G' }));
-      await new Promise(resolve => setTimeout(resolve, 450));
+      wysiwygEditor.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ' ' }));
+      await new Promise(resolve => setTimeout(resolve, 300));
       if (!document.querySelector('#wysiwyg-editor h1') || !window.LiteMDRuntime.getMarkdown().includes('Runtime WYSIWYG')) {
         throw new Error('WYSIWYG editor did not render typed Markdown into formatted output');
       }

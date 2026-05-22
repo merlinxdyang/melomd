@@ -2047,6 +2047,7 @@
     let cloudSaveTimer = null;
     let suppressEditorChange = false;
     let suppressWysiwygChange = false;
+    let isWysiwygComposing = false;
     let wysiwygRenderTimer = null;
     const docFileHandles = new Map();
 
@@ -3472,7 +3473,12 @@
       const surface = document.getElementById('wysiwyg-editor');
       if (!surface) return '';
       const hasBlockHtml = surface.querySelector('h1,h2,h3,h4,h5,h6,p,ul,ol,blockquote,pre,table,img');
-      if (!hasBlockHtml) return plainTextWithBreaks(surface).replace(/\n{3,}/g, '\n\n').trimEnd();
+      if (!hasBlockHtml) {
+        return Array.from(surface.childNodes)
+          .map(plainTextWithBreaks)
+          .join('')
+          .replace(/\n{3,}/g, '\n\n');
+      }
       return Array.from(surface.childNodes)
         .map(node => domNodeToMarkdown(node, 0))
         .join('')
@@ -3492,13 +3498,41 @@
 
     function updateWysiwygFromMarkdown(html) {
       const surface = document.getElementById('wysiwyg-editor');
-      if (!surface || editorMode !== 'wysiwyg' || suppressWysiwygChange) return;
+      if (!surface || editorMode !== 'wysiwyg' || suppressWysiwygChange || isWysiwygComposing) return;
       suppressWysiwygChange = true;
       surface.innerHTML = html || '';
       suppressWysiwygChange = false;
     }
 
-    function syncWysiwygToMarkdown(renderAfterInput) {
+    function markdownHasRenderableStructure(markdown) {
+      return /(^|\n)(#{1,6}\s|>\s|[-*+]\s|\d+\.\s|- \[[ xX]\]\s|```|~~~|\|.*\|)/.test(markdown || '');
+    }
+
+    function shouldRenderWysiwygAfterInput(surface, markdown, event) {
+      if (!surface || isWysiwygComposing || !markdownHasRenderableStructure(markdown)) return false;
+      const inputType = event && event.inputType ? event.inputType : '';
+      if (inputType === 'insertCompositionText' || inputType === 'deleteCompositionText') return false;
+      const hasRenderedBlocks = !!surface.querySelector('h1,h2,h3,h4,h5,h6,ul,ol,blockquote,pre,table');
+      if (hasRenderedBlocks && inputType === 'insertText') return false;
+      if (!event) return true;
+      return event.data === ' ' ||
+        inputType === 'insertParagraph' ||
+        inputType === 'insertFromPaste' ||
+        inputType === 'insertFromDrop' ||
+        inputType === 'formatBlock';
+    }
+
+    function renderWysiwygSurfaceFromMarkdown() {
+      const surface = document.getElementById('wysiwyg-editor');
+      if (!surface || editorMode !== 'wysiwyg' || isWysiwygComposing) return;
+      suppressWysiwygChange = true;
+      const rawHtml = marked.parse(renderFootnoteMarkdown(normalizeMathMarkdown(editor.getValue())));
+      surface.innerHTML = window.DOMPurify ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } }) : rawHtml;
+      suppressWysiwygChange = false;
+      moveCaretToEnd(surface);
+    }
+
+    function syncWysiwygToMarkdown(renderAfterInput, event) {
       if (suppressWysiwygChange || !editor || editorMode !== 'wysiwyg') return;
       const surface = document.getElementById('wysiwyg-editor');
       const markdown = wysiwygHtmlToMarkdown();
@@ -3508,15 +3542,9 @@
       suppressWysiwygChange = true;
       onEditorChange(editor, null);
       suppressWysiwygChange = false;
-      if (renderAfterInput) {
+      if (renderAfterInput && shouldRenderWysiwygAfterInput(surface, markdown, event)) {
         clearTimeout(wysiwygRenderTimer);
-        wysiwygRenderTimer = setTimeout(() => {
-          suppressWysiwygChange = true;
-          const rawHtml = marked.parse(renderFootnoteMarkdown(normalizeMathMarkdown(editor.getValue())));
-          surface.innerHTML = window.DOMPurify ? DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } }) : rawHtml;
-          suppressWysiwygChange = false;
-          moveCaretToEnd(surface);
-        }, 320);
+        wysiwygRenderTimer = setTimeout(renderWysiwygSurfaceFromMarkdown, 180);
       }
     }
 
@@ -5182,7 +5210,15 @@ body{font-size:15px;line-height:1.8;}
       renderDocList(e.target.value);
     });
 
-    document.getElementById('wysiwyg-editor').addEventListener('input', () => syncWysiwygToMarkdown(true));
+    document.getElementById('wysiwyg-editor').addEventListener('compositionstart', () => {
+      isWysiwygComposing = true;
+      clearTimeout(wysiwygRenderTimer);
+    });
+    document.getElementById('wysiwyg-editor').addEventListener('compositionend', e => {
+      isWysiwygComposing = false;
+      syncWysiwygToMarkdown(true, e);
+    });
+    document.getElementById('wysiwyg-editor').addEventListener('input', e => syncWysiwygToMarkdown(true, e));
     document.getElementById('wysiwyg-editor').addEventListener('blur', () => syncWysiwygToMarkdown(false));
     document.addEventListener('click', e => {
       if (!e.target.closest('#doc-context-menu') && !e.target.closest('.doc-item-actions')) closeDocMenu();

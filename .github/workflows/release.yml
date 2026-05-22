@@ -6,7 +6,7 @@ on:
       tag:
         description: "Release tag to build"
         required: true
-        default: "v3.0.0"
+        default: "v3.0.1"
 
 permissions:
   contents: write
@@ -98,15 +98,16 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
-          name: MeloMD 3.0.0
+          name: MeloMD 3.0.1
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
           files: release-assets/*
           body: |
-            MeloMD 3.0.0 release.
+            MeloMD 3.0.1 patch release.
 
             Highlights:
+            - Fixes WYSIWYG typing stability for plain text, spaces, and IME composition input.
             - Two-row responsive toolbar.
             - Split comparison mode plus single-pane WYSIWYG mode.
             - Responsive editable and preview surfaces.
@@ -115,9 +116,9 @@ jobs:
             - Corrected macOS Dock icon sizing and transparency.
 
             Assets:
-            - macOS Apple Silicon: MeloMD-3.0.0-mac-arm64.dmg / .zip
-            - macOS Intel: MeloMD-3.0.0-mac-x64.dmg / .zip
-            - Windows x64: MeloMD-3.0.0-win-x64.exe / .zip
+            - macOS Apple Silicon: MeloMD-3.0.1-mac-arm64.dmg / .zip
+            - macOS Intel: MeloMD-3.0.1-mac-x64.dmg / .zip
+            - Windows x64: MeloMD-3.0.1-win-x64.exe / .zip
 
             Notes:
             - Builds are unsigned. macOS Gatekeeper and Windows SmartScreen may warn on first launch.
