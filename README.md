@@ -131,17 +131,6 @@ MeloMD supports:
 
 The HTML export is self-contained, including bundled KaTeX and syntax-highlighting styles. PDF export uses Electron's print pipeline for a closer preview-to-PDF result.
 
-## Support
-
-MeloMD is a personal open-source project. If it helps your writing, notes, or document workflow, voluntary support is appreciated and helps keep the project maintained.
-
-- PayPal: [paypal.me/yxd76](https://paypal.me/yxd76)
-- Alipay: scan the QR code below
-
-<p>
-  <img src="assets/support/alipay.jpeg" width="220" alt="Alipay QR code">
-</p>
-
 ## License
 
 MeloMD is released under the MIT License. See [LICENSE](LICENSE).

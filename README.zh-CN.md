@@ -131,17 +131,6 @@ MeloMD 支持导出：
 
 HTML 导出为自包含文件，会内嵌 KaTeX 和代码高亮样式。PDF 导出使用 Electron 打印管线，以尽量接近预览效果。
 
-## 支持项目
-
-MeloMD 是一个个人维护的开源项目。如果它对你的写作、笔记或文档整理有帮助，可以自愿支持项目后续维护。
-
-- PayPal：[paypal.me/yxd76](https://paypal.me/yxd76)
-- 支付宝：扫描下方二维码
-
-<p>
-  <img src="assets/support/alipay.jpeg" width="220" alt="支付宝收款码">
-</p>
-
 ## 许可证
 
 MeloMD 使用 MIT License 发布。详见 [LICENSE](LICENSE)。
