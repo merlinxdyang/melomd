@@ -42,7 +42,28 @@ MeloMD 是一个本地优先的 Markdown 编辑器，面向快速写作、实时
 - `MeloMD-3.0.2-win-x64.exe`：64 位 Windows 安装包。
 - `MeloMD-3.0.2-win-x64.zip`：64 位 Windows 便携压缩包。
 
-这些本地构建默认未签名，除非打包时提供了平台签名证书。macOS 首次打开时可能需要在 **系统设置 > 隐私与安全性** 中允许，或在 Finder 里右键选择 **打开**。Windows 可能显示 SmartScreen 未签名警告。
+这些本地构建默认未签名，除非打包时提供了平台签名证书。
+
+### 未签名应用说明
+
+macOS 可能因为应用未公证而阻止打开。可以用下面任一方式处理：
+
+1. 先把 `MeloMD 3.0.app` 移动到 `/Applications`。
+2. 尝试打开一次。如果系统阻止打开，进入 **系统设置 > 隐私与安全性**，点击 **仍要打开**。
+3. 也可以在终端运行下面的命令，移除 quarantine 标记：
+
+```bash
+sudo xattr -dr com.apple.quarantine "/Applications/MeloMD 3.0.app"
+```
+
+然后再从 `/Applications` 打开应用。
+
+Windows 可能因为安装包未签名而显示 Microsoft Defender SmartScreen 提示。继续安装的方法：
+
+1. 双击 `MeloMD-3.0.2-win-x64.exe`。
+2. 如果出现 SmartScreen 提示，点击 **更多信息**。
+3. 点击 **仍要运行**。
+4. 按安装向导继续安装。
 
 ## 从源码运行
 

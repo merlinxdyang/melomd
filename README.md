@@ -42,7 +42,28 @@ Expected 3.0.2 release assets:
 - `MeloMD-3.0.2-win-x64.exe` for 64-bit Windows.
 - `MeloMD-3.0.2-win-x64.zip` as a portable 64-bit Windows archive.
 
-These local builds are unsigned unless signing certificates are available during packaging. macOS may require opening from **System Settings > Privacy & Security** or using **Open** from the Finder context menu. Windows may show a SmartScreen warning for unsigned installers.
+These local builds are unsigned unless signing certificates are available during packaging.
+
+### Unsigned App Notes
+
+macOS may block the app because it is not notarized. You can open it in one of these ways:
+
+1. Move `MeloMD 3.0.app` to `/Applications`.
+2. Try opening it once. If macOS blocks it, open **System Settings > Privacy & Security** and choose **Open Anyway**.
+3. Alternatively, remove the quarantine attribute in Terminal:
+
+```bash
+sudo xattr -dr com.apple.quarantine "/Applications/MeloMD 3.0.app"
+```
+
+Then open the app again from `/Applications`.
+
+Windows may show a Microsoft Defender SmartScreen warning because the installer is unsigned. To continue:
+
+1. Double-click `MeloMD-3.0.2-win-x64.exe`.
+2. If SmartScreen appears, click **More info**.
+3. Click **Run anyway**.
+4. Continue through the installer.
 
 ## Run From Source
 
